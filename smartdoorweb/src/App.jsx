@@ -1,8 +1,10 @@
 // App.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { HashRouter as Router, Route, Routes, Link } from 'react-router-dom'; // Change to HashRouter
 import { useState } from 'react';
-import { Lock, Home, Video, Settings, Info, LogIn } from 'lucide-react';
+import { Home, Info } from 'lucide-react';
+import { Lock, Unlock } from 'lucide-react';
+import './App.css';
 
 // Navbar Component
 const Navbar = () => {
@@ -14,10 +16,8 @@ const Navbar = () => {
         </Link>
         <div className="flex space-x-4">
           <NavLink to="/" icon={<Home />}>Home</NavLink>
-          <NavLink to="/video" icon={<Video />}>Video</NavLink>
-          <NavLink to="/settings" icon={<Settings />}>Settings</NavLink>
+          <NavLink to="/lockcontrol" icon={<Lock />}>LockControl</NavLink>
           <NavLink to="/about" icon={<Info />}>About</NavLink>
-          <NavLink to="/signin" icon={<LogIn />}>Sign In</NavLink>
         </div>
       </div>
     </nav>
@@ -53,7 +53,6 @@ const StartPage = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold mb-4">Key Features</h2>
             <ul className="space-y-4">
-              <li>✓ Real-time video monitoring</li>
               <li>✓ Remote access control</li>
               <li>✓ Digital key management</li>
               <li>✓ Instant notifications</li>
@@ -106,58 +105,37 @@ const HomePage = () => {
 };
 
 // Video Stream Page Component
-const VideoStreamPage = () => {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-4">Live Video Feed</h2>
-      <div className="bg-gray-800 rounded-lg shadow-lg aspect-video mb-4">
-        <div className="flex items-center justify-center h-full">
-          <p className="text-white">Video Stream Placeholder</p>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <button className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-          Take Screenshot
-        </button>
-        <button className="bg-red-600 text-white py-2 rounded hover:bg-red-700">
-          Record Video
-        </button>
-      </div>
-    </div>
-  );
-};
+const LockControl = () => {
+  const [doorStatus, setDoorStatus] = useState('Locked');
 
-// Settings Page Component
-const SettingsPage = () => {
+  // Function to toggle the lock status
+  const toggleLock = () => {
+    setDoorStatus((prevStatus) => (prevStatus === 'Locked' ? 'Unlocked' : 'Locked'));
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6">Settings</h2>
+      <h2 className="text-3xl font-bold mb-6">Remote Door Control</h2>
       <div className="bg-white p-6 rounded-lg shadow-lg">
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Notification Preferences</h3>
-            <div className="space-y-2">
-              <label className="flex items-center">
-                <input type="checkbox" className="mr-2" />
-                Door access notifications
-              </label>
-              <label className="flex items-center">
-                <input type="checkbox" className="mr-2" />
-                Motion detection alerts
-              </label>
-            </div>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Auto-Lock Settings</h3>
-            <select className="w-full p-2 border rounded">
-              <option>After 30 seconds</option>
-              <option>After 1 minute</option>
-              <option>After 5 minutes</option>
-              <option>Never</option>
-            </select>
-          </div>
-          <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">
-            Save Settings
+        <div className="flex items-center justify-between mb-8">
+          <span className="text-xl">Door Status:</span>
+          <span className={`text-2xl font-bold ${doorStatus === 'Locked' ? 'text-green-600' : 'text-red-600'}`}>
+            {doorStatus}
+          </span>
+        </div>
+        <div className="flex justify-center items-center">
+          {doorStatus === 'Locked' ? (
+            <Unlock className="text-blue-600 w-12 h-12 mr-4" />
+          ) : (
+            <Lock className="text-red-600 w-12 h-12 mr-4" />
+          )}
+          <button
+            onClick={toggleLock}
+            className={`bg-${doorStatus === 'Locked' ? 'red' : 'blue'}-600 text-white py-3 px-6 rounded-lg hover:bg-${
+              doorStatus === 'Locked' ? 'red' : 'blue'
+            }-700`}
+          >
+            {doorStatus === 'Locked' ? 'Unlock Door' : 'Lock Door'}
           </button>
         </div>
       </div>
@@ -195,72 +173,18 @@ const AboutPage = () => {
   );
 };
 
-// Sign In Page Component
-const SignInPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Add authentication logic here
-    console.log('Sign in attempt:', { email, password });
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-6 text-center">Sign In</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700 mb-2">Email Address</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-          >
-            Sign In
-          </button>
-        </form>
-        <div className="mt-4 text-center">
-          <a href="#" className="text-blue-600 hover:text-blue-800">
-            Forgot password?
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // Main App Component
 const App = () => {
   return (
+    // Set the basename to your subdirectory path
     <Router>
       <div className="min-h-screen bg-gray-100">
         <Navbar />
         <Routes>
           <Route path="/" element={<StartPage />} />
           <Route path="/home" element={<HomePage />} />
-          <Route path="/video" element={<VideoStreamPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/lockcontrol" element={<LockControl />} />
           <Route path="/about" element={<AboutPage />} />
-          <Route path="/signin" element={<SignInPage />} />
         </Routes>
       </div>
     </Router>
