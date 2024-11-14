@@ -9,7 +9,7 @@ void setup() {
   servo_setup();
   LCD_init();
   NFC_setup();
-  delay(3000);
+  delay(1000);
   
 
   lcd_show_message("1-wifi 2-offline");
