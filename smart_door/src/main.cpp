@@ -2,48 +2,31 @@
 #include "main.h"
 
 int pirPin = 2;
-String password = "";
+const char init_ssid[] = "smart_door";  // Defined SSID
+const char init_password[] = "66666666";  // Defined Password
 
 void setup() {
   Serial.begin(115200);
+  delay(5000);
   servo_setup();
   LCD_init();
-  NFC_setup();
-  delay(1000);
+  delay(100);
   
+  lcd_show_message("Welcome to smart lock!");
+  delay(100);
 
-  lcd_show_message("1-wifi 2-offline");
-  delay(1000);
+  lcd_show_message("Setting on WIFI");
+  lcd_SecondCol("Follow user Manual");
+  wifi_setup(init_ssid, init_password);
 
-  // Keypad_setup();
-  // String password = StringInput();
-
-  while (Serial.available() == 0) {
-    // Do nothing
-  }
-  String inputString = Serial.readString();  
-  inputString.trim();
-  if (inputString == "1") {
-    lcd_show_message("WIFI on");
-    wifi_connection();
-  } else {
-    lcd_show_message("offline on");
-    lcd_show_message("set new password");
-
-    while (Serial.available() == 0) {
-      // Waiting for user to input the password
-    }
-    password = Serial.readString();
-    Serial.println(password);
-    lcd_show_message("Writing to NFC...");
-    writePassword(password);
-  }
-  lcd_show_message("Setup Complete");
+  delay(2000);
+  handleClient();
+  delay(5000);
+  lcd_FirstCol("Done");
 }
 
-
 void loop() {
-  delay(1000);
-  dectection();
-  open_or_lock(0);
+  // delay(1000);
+  // dectection();
+  // open_or_lock(0);
 }
