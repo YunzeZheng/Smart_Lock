@@ -1,6 +1,5 @@
 #include <WiFiS3.h>
 #include <EEPROM.h>
-#include "wifi.h"
 
 // Default AP credentials
 char* DEFAULT_SSID = "SetupWiFi";
