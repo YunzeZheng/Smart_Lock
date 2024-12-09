@@ -40,3 +40,8 @@ void lcd_SecondCol(const char* message) {
   lcd.print(message);
 }
 
+void lcd_savemode(){
+  lcd.noBacklight();
+  lcd.clear();
+}
+

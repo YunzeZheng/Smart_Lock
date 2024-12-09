@@ -7,10 +7,10 @@ int soundLevel = 0;
 
 bool Sounddetect() {
   soundLevel = analogRead(soundSensorPin);
-  
-  if (soundLevel > 600) {
+  if (soundLevel > 100) {
     return true;
   } else {
     return false;
   }
+  delay(10);
 }

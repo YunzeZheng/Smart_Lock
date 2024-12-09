@@ -1,19 +1,19 @@
 #include <Arduino.h>
 #include "main.h"
-// Define the PWM pins for RGB LED
-const int redPin = 16;
-const int greenPin = 17;
-const int bluePin = 18;
+
+int RED_PIN = 16;
+int GREEN_PIN = 6;
+int BLUE_PIN = 9;
 
 void RGB_setup() {
   // Set the RGB pins as output
-  pinMode(redPin, OUTPUT);
-  pinMode(greenPin, OUTPUT);
-  pinMode(bluePin, OUTPUT);
+  pinMode(RED_PIN, OUTPUT);
+  pinMode(GREEN_PIN, OUTPUT);
+  pinMode( BLUE_PIN, OUTPUT);
 }
 
 void Color_set(int redValue, int greenValue, int blueValue) {
-  analogWrite(redPin, redValue);
-  analogWrite(greenPin, greenValue);
-  analogWrite(bluePin, blueValue);
+  analogWrite(RED_PIN, redValue);
+  analogWrite(GREEN_PIN, greenValue);
+  analogWrite(BLUE_PIN, blueValue);
 }
