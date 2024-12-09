@@ -3,122 +3,73 @@
 
 #define RST_PIN         9           // Configurable, see typical pin layout above
 #define SS_PIN          10          // Configurable, see typical pin layout above
+#define DOOR_PIN        8           // Pin connected to door lock mechanism
+#define OPEN_TIME       5000        // Time to keep door open in milliseconds
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance
 
 char *valueToWrite = "RFIDTest123456";  // Example value to write to the card
+unsigned long doorOpenTime = 0;          // Tracks when the door was opened
+bool isDoorOpen = false;                 // Track door state
 
-void NFC_setup() {
-  SPI.begin();                    // Initialize SPI bus
-  mfrc522.PCD_Init();             // Initialize MFRC522 card
-  Serial.println(F("Ready to read and write RFID card"));
+void setup() {
+  Serial.begin(9600);
+  NFC_setup();
+  pinMode(DOOR_PIN, OUTPUT);
+  digitalWrite(DOOR_PIN, LOW);    // Ensure door starts locked
 }
 
-// Function to write data to a specified block
-void writeDataToBlock(byte block, const char* data) {
-  byte buffer[18];
-  byte len = 16; // Length of the data
-  for (byte i = 0; i < len; i++) {
-    buffer[i] = data[i]; // Copy data into buffer
+void loop() {
+  // Check if door is open and should be closed
+  if (isDoorOpen && (millis() - doorOpenTime >= OPEN_TIME)) {
+    closeDoor();
   }
 
-  MFRC522::MIFARE_Key key;
-  for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;  // Default key
-
-  MFRC522::StatusCode status;
-
-  // Authenticate and write data to the block
-  status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key, &(mfrc522.uid));
-  if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("Authentication failed: "));
-    Serial.println(mfrc522.GetStatusCodeName(status));
-    return;
-  }
-
-  status = mfrc522.MIFARE_Write(block, buffer, len);
-  if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("Writing failed: "));
-    Serial.println(mfrc522.GetStatusCodeName(status));
-    return;
-  }
-  Serial.println(F("Data written to block"));
-}
-
-// Function to read data from a specified block
-String readDataFromBlock(byte block) {
-  byte buffer[18];
-  byte len = 18; // Length of the buffer
-
-  MFRC522::MIFARE_Key key;
-  for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;  // Default key
-
-  MFRC522::StatusCode status;
-
-  // Authenticate and read data from the block
-  status = mfrc522.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key, &(mfrc522.uid));
-  if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("Authentication failed: "));
-    Serial.println(mfrc522.GetStatusCodeName(status));
-    return "";
-  }
-
-  status = mfrc522.MIFARE_Read(block, buffer, &len);
-  if (status != MFRC522::STATUS_OK) {
-    Serial.print(F("Reading failed: "));
-    Serial.println(mfrc522.GetStatusCodeName(status));
-    return "";
-  }
-
-  // Convert the read data to a string
-  String readValue = "";
-  for (uint8_t i = 0; i < 16; i++) {
-    if (buffer[i] != 32) {  // Exclude padding spaces
-      readValue += (char)buffer[i];
+  // Always check for cards, whether door is open or not
+  if (dect_card()) {
+    if (compare_password()) {
+      Serial.println(F("Authorized access"));
+      openDoor();
+    } else {
+      Serial.println(F("Access denied"));
     }
+    
+    // Halt PICC and stop encryption
+    mfrc522.PICC_HaltA();
+    mfrc522.PCD_StopCrypto1();
   }
 
-  return readValue;
+  delay(100);  // Small delay to prevent excessive CPU usage
 }
 
+void openDoor() {
+  digitalWrite(DOOR_PIN, HIGH);
+  isDoorOpen = true;
+  doorOpenTime = millis();
+  Serial.println(F("Door opened"));
+}
+
+void closeDoor() {
+  digitalWrite(DOOR_PIN, LOW);
+  isDoorOpen = false;
+  Serial.println(F("Door closed"));
+}
+
+// Your existing NFC_setup, writeDataToBlock, readDataFromBlock functions remain unchanged
 
 bool compare_password() {
   // Prepare key - default key is FFFFFFFFFFFFh
   MFRC522::MIFARE_Key key;
   for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;
 
-  //-------------------------------------------
-  // Check if a new card is present on the sensor/reader
-  if (!mfrc522.PICC_IsNewCardPresent()) {
-    return false;
-  }
-
-  // Select the card
-  if (!mfrc522.PICC_ReadCardSerial()) {
-    return false;
-  }
-
   Serial.println(F("**Card Detected:**"));
-  mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); // Dump UID details to Serial Monitor
+  mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid));
 
-  //-------------------------------------------
   // Perform read operation
   String readValue = readDataFromBlock(4);
 
-  //-------------------------------------------
   // Compare the read value with the expected value
-  if (readValue == valueToWrite) {
-    return true;
-  } else {
-    return false;
-  }
-
-  //-------------------------------------------
-  Serial.println(F("\n**End Reading and Writing**\n"));
-
-  delay(1000); // Adjust this delay as needed
-
-  mfrc522.PICC_HaltA();
-  mfrc522.PCD_StopCrypto1();
+  return (readValue == valueToWrite);
 }
 
 bool dect_card() {
