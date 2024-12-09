@@ -1,32 +1,81 @@
 #include <Arduino.h>
 #include "main.h"
 
+enum State {
+  POWER_SAVE,
+  ACTIVITY,
+  WIFI_SERVER
+};
+
 int pirPin = 2;
-const char init_ssid[] = "smart_door";  // Defined SSID
-const char init_password[] = "66666666";  // Defined Password
+bool locker_state = false;
+State current_state = POWER_SAVE;
+String password = "zyz134926!";
+unsigned long activityTimer = 0;
+const unsigned long activityDelay = 20000;
 
 void setup() {
   Serial.begin(115200);
-  delay(5000);
   servo_setup();
   LCD_init();
+  RGB_setup();
+  NFC_setup();
   delay(100);
   
   lcd_show_message("Welcome to smart lock!");
   delay(100);
-
-  lcd_show_message("Setting on WIFI");
+  lcd_show_message("Setting on WiFi");
   lcd_SecondCol("Follow user Manual");
-  wifi_setup(init_ssid, init_password);
+  wifi_setup();
+}
 
-  delay(2000);
-  handleClient();
-  delay(5000);
-  lcd_FirstCol("Done");
+void handlePowerSave(){
+  Color_set(0,0,0);
+  lcd_savemode();
+  Color_set(256,0,0);
+}
+
+void handleActivity(){
+  lcd.backlight();
+  activityTimer = millis();
+  String inputString = "";
+  if(inputString == password){
+    servo_lock(0);
+  }else{
+    servo_lock(180);
+  }
+  while(1){
+    //
+  }
+  if (activityTimer >= activityDelay) {
+    current_state = POWER_SAVE;
+    handlePowerSave();
+  }
+}
+
+void handleWiFiServer(){
+  Color_set(0,0,256);
+  ClientOn();
 }
 
 void loop() {
-  // delay(1000);
-  // dectection();
-  // open_or_lock(0);
+  // Modes functions
+  switch (current_state) {
+    case POWER_SAVE:
+      if (Sounddetect() || detectNFC()) {
+        current_state = ACTIVITY;
+        break;
+      }
+      handlePowerSave();
+      break;
+    case ACTIVITY:
+      Color_set(0,256,0);
+      lcd.backlight();
+      handleActivity();
+      break;
+    case WIFI_SERVER:
+      handleWiFiServer();
+      break;
+  }
+
 }
