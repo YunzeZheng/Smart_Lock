@@ -3,15 +3,20 @@
 
 enum State {
   POWER_SAVE,
-  ACTIVITY
+  ACTIVITY,
+  WEBSEVER
 };
 
 int pirPin = 2;
 bool locker_state = false;
 State current_state = POWER_SAVE;
-String password = "zyz134926!";
 unsigned long activityTimer = 0;
+unsigned long webseverTimer = 0;
+const unsigned long webseverDelay = 5L * 60 * 1000;
 const unsigned long activityDelay = 20000;
+unsigned long unlockStartTime = 0;
+bool isUnlocking = false;
+String userInput = ""; // For storing user input
 
 void setup() {
   Serial.begin(115200);
@@ -30,57 +35,77 @@ void setup() {
   delay(5000);
 }
 
-void handlePowerSave(){
-  lcd_savemode();
-  Color_set(256,0,0);
+void unlockSequence() {
+  servo_lock(1); // Unlock
+  lcd_show_message("Unlocked");
+  Color_set(0, 255, 0); // Green for unlocked
+  isUnlocking = true;
 }
 
-void handleActivity(){
+
+void handlePowerSave() {
   lcd.backlight();
-  activityTimer = millis();
-  String inputString = "";
-  if(inputString == password){
-    servo_lock(0);
-  }else{
-    servo_lock(1);
+  // lcd_savemode();
+  Color_set(256, 0, 0);
+  if(dect_card()){
+    current_state = WEBSEVER;
+    webseverTimer = millis(); // Initialize web server timer
   }
-  if (activityTimer >= activityDelay) {
+}
+
+void handleActivity() {
+  lcd.backlight();
+
+  if (millis() - activityTimer >= activityDelay) {
     current_state = POWER_SAVE;
-    handlePowerSave();
+    return;
   }
+
+  if(dect_card()){
+    current_state = WEBSEVER;
+    webseverTimer = millis(); // Initialize web server timer
+  }
+}
+
+void handleWebsever() {
+  lcd.backlight();
+  if (millis() - webseverTimer >= webseverDelay) {
+    current_state = POWER_SAVE;
+    return;
+  }
+  if (compare_password()) {
+    unlockSequence();
+    unlockStartTime = millis();
+    Color_set(0, 255, 0);
+    delay(1000);
+  }
+  if (millis() - unlockStartTime >= 10000){
+    servo_lock(0); // Lock
+    lcd_show_message("Access Denied");
+  }
+  ClientOn(); // Interaction with the web server
 }
 
 void loop() {
-  // Modes functions
+  // handleUnlockDuration(); // Ensure lock relocks after unlock duration
+
   switch (current_state) {
     case POWER_SAVE:
-      if (Sounddetect() || detectNFC()) {
+      if (Sounddetect()) {
         current_state = ACTIVITY;
+        activityTimer = millis(); // Start activity timer
       }
       handlePowerSave();
       break;
+
     case ACTIVITY:
-      // Color_set(0,256,0);
-      lcd.backlight();
+      Color_set(255, 255, 0); // Set to yellow
       handleActivity();
-      if(detectNFC()){
-        current_state = POWER_SAVE;
-      }
+      break;
+
+    case WEBSEVER:
+      Color_set(0, 0, 255); // Set to blue
+      handleWebsever();
       break;
   }
-  Sounddetect();
-  // switch (current_state) {
-  //   case POWER_SAVE:
-  //     if (Sounddetect()) {
-  //       current_state = ACTIVITY;
-  //     }
-  //     handlePowerSave();
-  //     break;
-  //   case ACTIVITY:
-  //     // Color_set(0,256,0);
-  //     lcd.backlight();
-  //     handleActivity();
-  //     break;
-  // }
-  delay(10);
 }

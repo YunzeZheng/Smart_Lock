@@ -101,10 +101,6 @@ bool compare_password() {
   mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); // Dump UID details to Serial Monitor
 
   //-------------------------------------------
-  // Perform write operation
-  writeDataToBlock(4, valueToWrite);
-
-  //-------------------------------------------
   // Perform read operation
   String readValue = readDataFromBlock(4);
 
@@ -123,4 +119,16 @@ bool compare_password() {
 
   mfrc522.PICC_HaltA();
   mfrc522.PCD_StopCrypto1();
+}
+
+bool dect_card() {
+  if (!mfrc522.PICC_IsNewCardPresent()) {
+    return false;
+  }
+
+  // Select the card
+  if (!mfrc522.PICC_ReadCardSerial()) {
+    return false;
+  }
+  return true;
 }

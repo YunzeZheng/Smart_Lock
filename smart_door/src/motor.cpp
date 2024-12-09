@@ -17,5 +17,4 @@ void servo_lock(int LockVariable) {
   } else {
     myservo.write(0);  // Lock the servo (rotate to 0 degrees)
   }
-  delay(1000);
 }
