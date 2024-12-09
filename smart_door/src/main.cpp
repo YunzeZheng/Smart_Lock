@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "main.h"
-
+#include "wifi.h"
+#include "nfc.h"
 enum State {
   POWER_SAVE,
   ACTIVITY
