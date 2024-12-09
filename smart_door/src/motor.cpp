@@ -13,7 +13,7 @@ void servo_setup() {
 void servo_lock(int LockVariable) {
   int val;
   if (LockVariable == 1) {
-    myservo.write(90);  // Unlock the servo (rotate to 90 degrees)
+    myservo.write(120);  // Unlock the servo (rotate to 90 degrees)
   } else {
     myservo.write(0);  // Lock the servo (rotate to 0 degrees)
   }

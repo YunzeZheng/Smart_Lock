@@ -7,10 +7,11 @@ int soundLevel = 0;
 
 bool Sounddetect() {
   soundLevel = analogRead(soundSensorPin);
+  Serial.println(soundLevel);
   if (soundLevel > 100) {
     return true;
   } else {
     return false;
   }
-  delay(10);
+  delay(4);
 }

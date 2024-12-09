@@ -19,12 +19,14 @@ void setup() {
   LCD_init();
   RGB_setup();
   NFC_setup();
+  wifi_setup();
   delay(100);
   
   lcd_show_message("Welcome to smart lock!");
-  delay(100);
+  delay(2000);
   lcd_show_message("Setting on WiFi");
   lcd_SecondCol("Follow user Manual");
+  delay(5000);
 }
 
 void handlePowerSave(){
@@ -49,21 +51,19 @@ void handleActivity(){
 
 void loop() {
   // Modes functions
-  switch (current_state) {
-    case POWER_SAVE:
-      if (Sounddetect() || detectNFC()) {
-        current_state = ACTIVITY;
-      }
-      handlePowerSave();
-      break;
-    case ACTIVITY:
-      // Color_set(0,256,0);
-      lcd.backlight();
-      handleActivity();
-      if(detectNFC()){
-        current_state = POWER_SAVE;
-      }
-      break;
-  }
+  Sounddetect();
+  // switch (current_state) {
+  //   case POWER_SAVE:
+  //     if (Sounddetect()) {
+  //       current_state = ACTIVITY;
+  //     }
+  //     handlePowerSave();
+  //     break;
+  //   case ACTIVITY:
+  //     // Color_set(0,256,0);
+  //     lcd.backlight();
+  //     handleActivity();
+  //     break;
+  // }
   delay(10);
 }

@@ -6,57 +6,12 @@
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance
 
-const char *valueToWrite = "RFIDTest123456";  // Example value to write to the card
+char *valueToWrite = "RFIDTest123456";  // Example value to write to the card
 
-void setup() {
-  Serial.begin(115200);             // Initialize serial communications with the PC
+void NFC_setup() {
   SPI.begin();                    // Initialize SPI bus
   mfrc522.PCD_Init();             // Initialize MFRC522 card
   Serial.println(F("Ready to read and write RFID card"));
-}
-
-void loop() {
-  // Prepare key - default key is FFFFFFFFFFFFh
-  MFRC522::MIFARE_Key key;
-  for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;
-
-  //-------------------------------------------
-  // Check if a new card is present on the sensor/reader
-  if (!mfrc522.PICC_IsNewCardPresent()) {
-    return;
-  }
-
-  // Select the card
-  if (!mfrc522.PICC_ReadCardSerial()) {
-    return;
-  }
-
-  Serial.println(F("**Card Detected:**"));
-  mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); // Dump UID details to Serial Monitor
-
-  //-------------------------------------------
-  // Perform write operation
-  writeDataToBlock(4, valueToWrite);
-
-  //-------------------------------------------
-  // Perform read operation
-  String readValue = readDataFromBlock(4);
-
-  //-------------------------------------------
-  // Compare the read value with the expected value
-  if (readValue == valueToWrite) {
-    Serial.println(F("The read value matches the expected value!"));
-  } else {
-    Serial.println(F("The read value does not match the expected value."));
-  }
-
-  //-------------------------------------------
-  Serial.println(F("\n**End Reading and Writing**\n"));
-
-  delay(1000); // Adjust this delay as needed
-
-  mfrc522.PICC_HaltA();
-  mfrc522.PCD_StopCrypto1();
 }
 
 // Function to write data to a specified block
@@ -123,4 +78,49 @@ String readDataFromBlock(byte block) {
   }
 
   return readValue;
+}
+
+
+bool compare_password() {
+  // Prepare key - default key is FFFFFFFFFFFFh
+  MFRC522::MIFARE_Key key;
+  for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;
+
+  //-------------------------------------------
+  // Check if a new card is present on the sensor/reader
+  if (!mfrc522.PICC_IsNewCardPresent()) {
+    return false;
+  }
+
+  // Select the card
+  if (!mfrc522.PICC_ReadCardSerial()) {
+    return false;
+  }
+
+  Serial.println(F("**Card Detected:**"));
+  mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); // Dump UID details to Serial Monitor
+
+  //-------------------------------------------
+  // Perform write operation
+  writeDataToBlock(4, valueToWrite);
+
+  //-------------------------------------------
+  // Perform read operation
+  String readValue = readDataFromBlock(4);
+
+  //-------------------------------------------
+  // Compare the read value with the expected value
+  if (readValue == valueToWrite) {
+    return true;
+  } else {
+    return false;
+  }
+
+  //-------------------------------------------
+  Serial.println(F("\n**End Reading and Writing**\n"));
+
+  delay(1000); // Adjust this delay as needed
+
+  mfrc522.PICC_HaltA();
+  mfrc522.PCD_StopCrypto1();
 }

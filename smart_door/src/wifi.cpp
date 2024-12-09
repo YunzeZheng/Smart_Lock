@@ -2,8 +2,8 @@
 #include <EEPROM.h>
 
 // Default AP credentials
-const char* DEFAULT_SSID = "SetupWiFi";
-const char* DEFAULT_PASSWORD = "password123";
+char* DEFAULT_SSID = "SetupWiFi";
+char* DEFAULT_PASSWORD = "password123";
 
 // EEPROM addresses
 const int SSID_ADDR = 0;
@@ -20,67 +20,6 @@ char current_password[MAX_PASS_LENGTH];
 
 // TCP server on port 80
 WiFiServer server(80);
-
-void setup() {
-  Serial.begin(115200);
-  
-  if (!isConfigured()) {
-    strncpy(current_ssid, DEFAULT_SSID, MAX_SSID_LENGTH);
-    strncpy(current_password, DEFAULT_PASSWORD, MAX_PASS_LENGTH);
-  } else {
-    loadCredentials();
-  }
-  
-  setupAP();
-  server.begin();
-  
-  Serial.println("Server started");
-
-  // Print current WiFi credentials to Serial Monitor
-  Serial.print("Current SSID: ");
-  Serial.println(current_ssid);
-  Serial.print("Current Password: ");
-  Serial.println(current_password);
-}
-
-void loop() {
-  WiFiClient client = server.available();
-  
-  if (client) {
-    Serial.println("New client connected");
-    String currentLine = "";
-    String request = "";
-    
-    while (client.connected()) {
-      if (client.available()) {
-        char c = client.read();
-        request += c;
-        
-        if (c == '\n') {
-          if (currentLine.length() == 0) {
-            if (request.indexOf("POST /unlock") >= 0) {
-              handleUnlock(client);
-            } else if (request.indexOf("POST /activaterfid") >= 0) {
-              handleRFIDActivation(client);
-            } else if (request.indexOf("POST /wifi") >= 0) {
-              processCredentials(client);
-            } else {
-              sendWebPage(client);
-            }
-            break;
-          } else {
-            currentLine = "";
-          }
-        } else if (c != '\r') {
-          currentLine += c;
-        }
-      }
-    }
-    
-    client.stop();
-    Serial.println("Client disconnected");
-  }
-}
 
 void sendWebPage(WiFiClient &client) {
   client.println("HTTP/1.1 200 OK");
@@ -219,6 +158,28 @@ void sendWebPage(WiFiClient &client) {
   client.println("</div></body></html>");
 }
 
+void saveCredentials(const char* ssid, const char* password) {
+  for (int i = 0; i < strlen(ssid); i++) {
+    EEPROM.write(SSID_ADDR + i, ssid[i]);
+  }
+  EEPROM.write(SSID_ADDR + strlen(ssid), 0);
+  
+  for (int i = 0; i < strlen(password); i++) {
+    EEPROM.write(PASS_ADDR + i, password[i]);
+  }
+  EEPROM.write(PASS_ADDR + strlen(password), 0);
+  
+  EEPROM.write(CONFIGURED_FLAG_ADDR, 1);
+}
+
+void setupAP() {
+  WiFi.beginAP(current_ssid, current_password);
+  
+  IPAddress IP = WiFi.localIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
+}
+
 void handleUnlock(WiFiClient &client) {
   // Print to serial monitor when the unlock button is pressed
   Serial.println("UNLOCK_COMMAND_RECEIVED");
@@ -290,24 +251,64 @@ void loadCredentials() {
   }
 }
 
-void saveCredentials(const char* ssid, const char* password) {
-  for (int i = 0; i < strlen(ssid); i++) {
-    EEPROM.write(SSID_ADDR + i, ssid[i]);
-  }
-  EEPROM.write(SSID_ADDR + strlen(ssid), 0);
+void wifi_setup() {
   
-  for (int i = 0; i < strlen(password); i++) {
-    EEPROM.write(PASS_ADDR + i, password[i]);
+  if (!isConfigured()) {
+    strncpy(current_ssid, DEFAULT_SSID, MAX_SSID_LENGTH);
+    strncpy(current_password, DEFAULT_PASSWORD, MAX_PASS_LENGTH);
+  } else {
+    loadCredentials();
   }
-  EEPROM.write(PASS_ADDR + strlen(password), 0);
   
-  EEPROM.write(CONFIGURED_FLAG_ADDR, 1);
+  setupAP();
+  server.begin();
+  
+  Serial.println("Server started");
+
+  // Print current WiFi credentials to Serial Monitor
+  Serial.print("Current SSID: ");
+  Serial.println(current_ssid);
+  Serial.print("Current Password: ");
+  Serial.println(current_password);
 }
 
-void setupAP() {
-  WiFi.beginAP(current_ssid, current_password);
+
+
+void ClientOn() {
+  WiFiClient client = server.available();
   
-  IPAddress IP = WiFi.localIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
+  if (client) {
+    Serial.println("New client connected");
+    String currentLine = "";
+    String request = "";
+    
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
+        request += c;
+        
+        if (c == '\n') {
+          if (currentLine.length() == 0) {
+            if (request.indexOf("POST /unlock") >= 0) {
+              handleUnlock(client);
+            } else if (request.indexOf("POST /activaterfid") >= 0) {
+              handleRFIDActivation(client);
+            } else if (request.indexOf("POST /wifi") >= 0) {
+              processCredentials(client);
+            } else {
+              sendWebPage(client);
+            }
+            break;
+          } else {
+            currentLine = "";
+          }
+        } else if (c != '\r') {
+          currentLine += c;
+        }
+      }
+    }
+    
+    client.stop();
+    Serial.println("Client disconnected");
+  }
 }

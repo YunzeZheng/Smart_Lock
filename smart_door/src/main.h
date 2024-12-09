@@ -8,7 +8,9 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <MFRC522.h>
-extern String password;
+extern char* valueToWrite;
+extern char* DEFAULT_SSID;
+extern char* DEFAULT_PASSWORD;
 
 // --- Sound Senor Control ---
 extern int timer;
@@ -41,8 +43,8 @@ void ClientOn();
 // --- NFC Setup ---
 extern MFRC522 mfrc522;
 void NFC_setup();
-bool detectNFC();
-void writeNFC(MFRC522::MIFARE_Key* key, byte block, byte* data, byte len);
-void readNFC(MFRC522::MIFARE_Key* key, byte block, byte* buffer, byte* len);
+bool compare_password();
+void writeDataToBlock(byte block, const char* data);
+String readDataFromBlock(byte block);
 
 #endif;
