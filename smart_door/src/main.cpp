@@ -1,22 +1,86 @@
 #include <Arduino.h>
 #include "main.h"
 
-Servo myservo;
+enum State {
+  POWER_SAVE,
+  ACTIVITY
+};
 
-int motor_pin = 7;
+int pirPin = 2;
+bool locker_state = false;
+State current_state = POWER_SAVE;
+String password = "zyz134926!";
+unsigned long activityTimer = 0;
+const unsigned long activityDelay = 20000;
 
-void servo_setup() {
-  myservo.attach(motor_pin);  // Attach the servo motor to the motor_pin
-  servo_lock(0);  // Set initial state to 'locked' (0)
+void setup() {
+  Serial.begin(115200);
+  servo_setup();
+  LCD_init();
+  RGB_setup();
+  NFC_setup();
+  wifi_setup();
+  delay(100);
+
+  lcd_show_message("Welcome to smart lock!");
+  delay(100);
+  delay(2000);
+  lcd_show_message("Setting on WiFi");
+  lcd_SecondCol("Follow user Manual");
+  delay(5000);
 }
 
-void servo_lock(int LockVariable) {
-  int val;
-  if (LockVariable == 1) {
-    myservo.write(90);  // Unlock the servo (rotate to 90 degrees)
-    myservo.write(120);  // Unlock the servo (rotate to 90 degrees)
-  } else {
-    myservo.write(0);  // Lock the servo (rotate to 0 degrees)
+void handlePowerSave(){
+  lcd_savemode();
+  Color_set(256,0,0);
+}
+
+void handleActivity(){
+  lcd.backlight();
+  activityTimer = millis();
+  String inputString = "";
+  if(inputString == password){
+    servo_lock(0);
+  }else{
+    servo_lock(1);
   }
-  delay(1000);
+  if (activityTimer >= activityDelay) {
+    current_state = POWER_SAVE;
+    handlePowerSave();
+  }
+}
+
+void loop() {
+  // Modes functions
+  switch (current_state) {
+    case POWER_SAVE:
+      if (Sounddetect() || detectNFC()) {
+        current_state = ACTIVITY;
+      }
+      handlePowerSave();
+      break;
+    case ACTIVITY:
+      // Color_set(0,256,0);
+      lcd.backlight();
+      handleActivity();
+      if(detectNFC()){
+        current_state = POWER_SAVE;
+      }
+      break;
+  }
+  Sounddetect();
+  // switch (current_state) {
+  //   case POWER_SAVE:
+  //     if (Sounddetect()) {
+  //       current_state = ACTIVITY;
+  //     }
+  //     handlePowerSave();
+  //     break;
+  //   case ACTIVITY:
+  //     // Color_set(0,256,0);
+  //     lcd.backlight();
+  //     handleActivity();
+  //     break;
+  // }
+  delay(10);
 }
