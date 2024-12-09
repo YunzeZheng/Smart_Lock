@@ -12,8 +12,8 @@ void servo_setup() {
 
 void servo_lock(int LockVariable) {
   int val;
-  if (LockVariable == 1) {  // Use '==' to compare values
-    myservo.write(180);  // Unlock the servo (rotate to 180 degrees)
+  if (LockVariable == 1) {
+    myservo.write(90);  // Unlock the servo (rotate to 90 degrees)
   } else {
     myservo.write(0);  // Lock the servo (rotate to 0 degrees)
   }

@@ -6,7 +6,7 @@ void LCD_init() {
   lcd.init();
   lcd.backlight();
   lcd.blink();
-  // lcd.command(0xc);
+  lcd.command(0xc);
   delay(500);
 }
 

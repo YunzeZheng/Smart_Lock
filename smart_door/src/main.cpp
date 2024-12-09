@@ -3,8 +3,7 @@
 
 enum State {
   POWER_SAVE,
-  ACTIVITY,
-  WIFI_SERVER
+  ACTIVITY
 };
 
 int pirPin = 2;
@@ -26,11 +25,9 @@ void setup() {
   delay(100);
   lcd_show_message("Setting on WiFi");
   lcd_SecondCol("Follow user Manual");
-  wifi_setup();
 }
 
 void handlePowerSave(){
-  Color_set(0,0,0);
   lcd_savemode();
   Color_set(256,0,0);
 }
@@ -42,20 +39,12 @@ void handleActivity(){
   if(inputString == password){
     servo_lock(0);
   }else{
-    servo_lock(180);
-  }
-  while(1){
-    //
+    servo_lock(1);
   }
   if (activityTimer >= activityDelay) {
     current_state = POWER_SAVE;
     handlePowerSave();
   }
-}
-
-void handleWiFiServer(){
-  Color_set(0,0,256);
-  ClientOn();
 }
 
 void loop() {
@@ -64,18 +53,17 @@ void loop() {
     case POWER_SAVE:
       if (Sounddetect() || detectNFC()) {
         current_state = ACTIVITY;
-        break;
       }
       handlePowerSave();
       break;
     case ACTIVITY:
-      Color_set(0,256,0);
+      // Color_set(0,256,0);
       lcd.backlight();
       handleActivity();
-      break;
-    case WIFI_SERVER:
-      handleWiFiServer();
+      if(detectNFC()){
+        current_state = POWER_SAVE;
+      }
       break;
   }
-
+  delay(10);
 }

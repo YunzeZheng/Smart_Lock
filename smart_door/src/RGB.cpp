@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include "main.h"
 
-int RED_PIN = 16;
-int GREEN_PIN = 6;
-int BLUE_PIN = 9;
+int RED_PIN = 4;
+int GREEN_PIN = 5;
+int BLUE_PIN = 6;
 
 void RGB_setup() {
   // Set the RGB pins as output
