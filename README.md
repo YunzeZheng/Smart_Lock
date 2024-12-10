@@ -93,7 +93,7 @@ The project is organized as follows:
 
 - **smart_door**
   - **include** - Header files for modular design
-  - **lib** - Third-party libraries (if any)
+  - **lib** - Third-party libraries
   - **src** - Source code
     - `LCD.cpp` - Code for LCD display control
     - `NFC.cpp` - Handles NFC authentication
