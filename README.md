@@ -58,16 +58,16 @@ Download and install the necessary libraries for the servo motor, NFC reader, LC
 Upload the provided Arduino code to the board.
 Modify the code to include your WiFi credentials for the web server functionality.
 Usage
-# Power Save Mode
+### Power Save Mode
 After booting, the system will start in Power Save Mode. The system will detect any motion or user input (via NFC or password) and transition to Activity Mode.
 
-# Activity Mode
+### Activity Mode
 Once in Activity Mode, the system will prompt the user to tap an NFC card or enter a password to unlock the lock. After the specified inactivity timeout, the system will return to Power Save Mode.
 
-# Web Server Mode
+### Web Server Mode
 When the system enters Web Server Mode, users can remotely control the lock through a web interface. The system will revert to Power Save Mode after a set period of inactivity.
 
-# Future Improvements
+### Future Improvements
 Enhanced Security
 Implement additional security features such as biometric authentication (fingerprint or facial recognition).
 
