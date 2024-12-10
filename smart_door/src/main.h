@@ -13,6 +13,9 @@ extern char* valueToWrite;
 extern char* DEFAULT_SSID;
 extern char* DEFAULT_PASSWORD;
 
+// -- main --
+extern void unlockSequence();
+
 // --- Sound Senor Control ---
 extern int timer;
 bool Sounddetect();
@@ -25,6 +28,7 @@ void RGB_setup();
 void Color_set(int redValue, int greenValue, int blueValue);
 
 // --- Motor Control ---
+extern unsigned long unlockStartTime;
 void servo_setup();
 void servo_lock(int LockVariable);
 
@@ -37,11 +41,12 @@ void lcd_SecondCol(const char* message);
 void lcd_savemode();
 
 // --- Wi-Fi Setup ---
-extern bool locker_state;
+extern WiFiServer server;
 void wifi_setup();
 void ClientOn();
 
 // --- NFC Setup ---
+extern char* valueToWrite;
 extern MFRC522 mfrc522;
 void NFC_setup();
 bool compare_password();

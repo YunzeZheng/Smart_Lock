@@ -12,11 +12,17 @@ bool locker_state = false;
 State current_state = POWER_SAVE;
 unsigned long activityTimer = 0;
 unsigned long webseverTimer = 0;
-const unsigned long webseverDelay = 5L * 60 * 1000;
-const unsigned long activityDelay = 20000;
 unsigned long unlockStartTime = 0;
+unsigned long ClientTimer = 0;
+
+const unsigned long webseverDelay = 2L * 60 * 1000; // 5 minutes
+const unsigned long activityDelay = 20000;         // 20 seconds
+const unsigned long unlockDuration = 10000;        // 10 seconds
+const unsigned long clientWaitDelay = 20000;       // 20 seconds
+
 bool isUnlocking = false;
-String userInput = ""; // For storing user input
+bool clientDetected = false;
+uint8_t RGB_color[] = {0, 0, 0};
 
 void setup() {
   Serial.begin(115200);
@@ -28,9 +34,8 @@ void setup() {
   delay(100);
 
   lcd_show_message("Welcome to smart lock!");
-  delay(100);
   delay(2000);
-  lcd_show_message("Setting on WiFi");
+  lcd_show_message("Setting up WiFi");
   lcd_SecondCol("Follow user Manual");
   delay(5000);
 }
@@ -40,71 +45,108 @@ void unlockSequence() {
   lcd_show_message("Unlocked");
   Color_set(0, 255, 0); // Green for unlocked
   isUnlocking = true;
+  unlockStartTime = millis();
+  ClientTimer = millis(); // Start client wait timer
+  clientDetected = true;  // Flag indicating a user interaction
 }
 
+void checkLockTimeout() {
+  if (isUnlocking && (millis() - unlockStartTime >= unlockDuration)) {
+    servo_lock(0); // Lock
+    lcd_show_message("Locked");
+    isUnlocking = false;
+  }
+}
 
 void handlePowerSave() {
-  lcd.backlight();
-  // lcd_savemode();
-  Color_set(256, 0, 0);
-  if(dect_card()){
+  lcd_savemode();
+  if (isUnlocking){
+    Color_set(0, 255, 0); // Green for unlocked
+  }else{
+    Color_set(255, 0, 0); //
+  }
+
+  if (Sounddetect()) {
+    Serial.println("Sound detected, switching to ACTIVITY.");
+    current_state = ACTIVITY;
+    activityTimer = millis(); // Start activity timer
+  }
+
+  if (server.available()) {
+    Serial.println("Client connected, switching to WEBSEVER.");
     current_state = WEBSEVER;
-    webseverTimer = millis(); // Initialize web server timer
+    return;
+  }
+
+  if (compare_password()) {
+    unlockSequence();
   }
 }
 
 void handleActivity() {
   lcd.backlight();
+  if (isUnlocking){
+    Color_set(0, 255, 0); // Green for unlocked
+  }else{
+    Color_set(255, 255, 255); // White for activity mode
+  }
 
   if (millis() - activityTimer >= activityDelay) {
+    Serial.println("Activity timeout, switching to POWER_SAVE.");
     current_state = POWER_SAVE;
     return;
   }
 
-  if(dect_card()){
+  if (server.available()) {
+    Serial.println("Client connected, switching to WEBSEVER.");
     current_state = WEBSEVER;
-    webseverTimer = millis(); // Initialize web server timer
+    webseverTimer = millis();
+    return;
   }
+
+  if (compare_password()) {
+    unlockSequence();
+  }
+
+  if (clientDetected && (millis() - ClientTimer >= clientWaitDelay)) {
+    Serial.println("Client wait timeout, switching to WEBSEVER.");
+    current_state = WEBSEVER;
+    clientDetected = false;   // Reset the client detected flag
+  }
+
+  checkLockTimeout();
 }
 
 void handleWebsever() {
   lcd.backlight();
+  if (isUnlocking){
+    Color_set(0, 255, 0); // Green for unlocked
+  }else{
+    Color_set(0, 0, 255); // Blue for web server mode
+  }
+
   if (millis() - webseverTimer >= webseverDelay) {
+    Serial.println("Webserver timeout, switching to POWER_SAVE.");
     current_state = POWER_SAVE;
     return;
   }
-  if (compare_password()) {
-    unlockSequence();
-    unlockStartTime = millis();
-    Color_set(0, 255, 0);
-    delay(1000);
-  }
-  if (millis() - unlockStartTime >= 10000){
-    servo_lock(0); // Lock
-    lcd_show_message("Access Denied");
-  }
+
   ClientOn(); // Interaction with the web server
 }
 
 void loop() {
-  // handleUnlockDuration(); // Ensure lock relocks after unlock duration
+  checkLockTimeout(); // Ensure lock relocks after unlock duration
 
   switch (current_state) {
     case POWER_SAVE:
-      if (Sounddetect()) {
-        current_state = ACTIVITY;
-        activityTimer = millis(); // Start activity timer
-      }
       handlePowerSave();
       break;
 
     case ACTIVITY:
-      Color_set(255, 255, 0); // Set to yellow
       handleActivity();
       break;
 
     case WEBSEVER:
-      Color_set(0, 0, 255); // Set to blue
       handleWebsever();
       break;
   }

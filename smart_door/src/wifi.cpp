@@ -1,3 +1,5 @@
+#include <Arduino.h>
+#include "main.h"
 #include <WiFiS3.h>
 #include <EEPROM.h>
 
@@ -183,7 +185,7 @@ void setupAP() {
 void handleUnlock(WiFiClient &client) {
   // Print to serial monitor when the unlock button is pressed
   Serial.println("UNLOCK_COMMAND_RECEIVED");
-  
+  unlockSequence();
   // Send HTTP response back to client (browser)
   client.println("HTTP/1.1 200 OK");
   client.println("Content-type:text/plain");
@@ -193,8 +195,9 @@ void handleUnlock(WiFiClient &client) {
 
 void handleRFIDActivation(WiFiClient &client) {
   // Print to serial monitor when RFID activation is triggered
-  Serial.println("ACTIVATE_RFID_COMMAND_RECEIVED");
-  
+  writeDataToBlock(4, valueToWrite);
+  lcd.clear();
+  lcd_show_message("Write Successful");
   // Send HTTP response back to client (browser)
   client.println("HTTP/1.1 200 OK");
   client.println("Content-type:text/plain");
