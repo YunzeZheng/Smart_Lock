@@ -9,28 +9,28 @@ This project is a smart door system that uses NFC authentication or a WiFi-based
 Power Save Mode
 The system enters a low-power state, where WiFi and other resources are disabled. The system detects sound or user input (via NFC or password) to transition to the next active state.
 
-# Activity Mode
+### Activity Mode
 When motion is detected via a PIR sensor, the system prompts the user to authenticate using NFC or a password. If the authentication is successful, the lock is unlocked. After a predefined inactivity period, the system will revert to Power Save Mode.
 
-# Web Server Mode
+### Web Server Mode
 The system enables remote control through a web interface, allowing users to unlock the device remotely. The system returns to Power Save Mode after a set period of inactivity.
 
-# NFC Authentication
+### NFC Authentication
 Unlock the system using an NFC card by tapping it against the NFC reader.
 
-# LCD Display
+### LCD Display
 The LCD screen shows various messages, such as system status, prompts for NFC, password entry, and state transitions.
 
-# RGB LED
+### RGB LED
 The RGB LED provides a visual indication of the lock status: green for unlocked, red for locked, and other colors for different states.
 
-# Servo Motor Control
+### Servo Motor Control
 The servo motor is used to physically lock or unlock the device.
 
-# WiFi Integration
+### WiFi Integration
 The system allows for web-based control and monitoring, enabling remote unlocking and management.
 
-# Components Used
+### Components Used
 Arduino: The microcontroller responsible for controlling the system.
 Servo Motor: Used for the physical locking mechanism.
 LCD Display: Displays system status messages.
@@ -42,10 +42,10 @@ System Flow
 Power Save Mode
 The system enters a low-power state by default. The system waits for sound input or user authentication via NFC or password to transition to the next mode.
 
-# Activity Mode
+### Activity Mode
 The system detects motion using the PIR sensor and prompts the user to authenticate. Upon successful authentication, the system unlocks the device by moving the servo. After a set period of inactivity, the system returns to Power Save Mode.
 
-# Web Server Mode
+### Web Server Mode
 Users can control the lock remotely through a web interface. The system remains in Web Server Mode for a limited time, after which it reverts to Power Save Mode.
 
 # Hardware Setup
