@@ -85,35 +85,36 @@ License
 This project is open-source and licensed under the MIT License. Feel free to use, modify, and distribute the code as needed.
 # Code Structure
 The project is organized as follows:
-|-- .vscode
-|   |-- c_cpp_properties.json      --> C/C++ IntelliSense configuration
-|   |-- launch.json                --> Debugging configuration
-|   |-- settings.json              --> General VS Code settings
-|
-|-- smart_door
-|   |-- include                    --> Header files for modular design
-|   |-- lib                        --> Third-party libraries (if any)
-|   |-- src                        --> Source code
-|   |   |-- LCD.cpp                --> Code for LCD display control
-|   |   |-- NFC.cpp                --> Handles NFC authentication
-|   |   |-- RGB.cpp                --> RGB LED status management
-|   |   |-- SSensor.cpp            --> Sound sensor functionality
-|   |   |-- main.cpp               --> Program entry point
-|   |   |-- motor.cpp              --> Motor operations for locking/unlocking
-|   |   |-- wifi.cpp               --> WiFi functionality and web server
-|   |-- test                       --> Unit tests for individual components
-|       |-- LCD_testcase.cpp       --> Tests for the LCD module
-|       |-- RGB_testcase.cpp       --> Tests for the RGB module
-|       |-- SSensor_testcase.cpp   --> Tests for the sound sensor
-|       |-- motor_testcase.cpp     --> Tests for motor operations
-|       |-- wifi_testcase.cpp      --> Tests for WiFi functionality
-|
-|-- smartdoorweb
-|   |-- public                     --> Static files for the web interface
-|   |-- src                        --> Web application source files
-|
-|-- .gitignore                     --> Git ignore file
-|-- platformio.ini                 --> PlatformIO configuration
+
+- **.vscode**
+  - `c_cpp_properties.json` - C/C++ IntelliSense configuration
+  - `launch.json` - Debugging configuration
+  - `settings.json` - General VS Code settings
+
+- **smart_door**
+  - **include** - Header files for modular design
+  - **lib** - Third-party libraries (if any)
+  - **src** - Source code
+    - `LCD.cpp` - Code for LCD display control
+    - `NFC.cpp` - Handles NFC authentication
+    - `RGB.cpp` - RGB LED status management
+    - `SSensor.cpp` - Sound sensor functionality
+    - `main.cpp` - Program entry point
+    - `motor.cpp` - Motor operations for locking/unlocking
+    - `wifi.cpp` - WiFi functionality and web server
+  - **test** - Unit tests for individual components
+    - `LCD_testcase.cpp` - Tests for the LCD module
+    - `RGB_testcase.cpp` - Tests for the RGB module
+    - `SSensor_testcase.cpp` - Tests for the sound sensor
+    - `motor_testcase.cpp` - Tests for motor operations
+    - `wifi_testcase.cpp` - Tests for WiFi functionality
+
+- **smartdoorweb**
+  - **public** - Static files for the web interface
+  - **src** - Web application source files
+
+- `.gitignore` - Git ignore file
+- `platformio.ini` - PlatformIO configuration
 
 # Project Test Suite
 
