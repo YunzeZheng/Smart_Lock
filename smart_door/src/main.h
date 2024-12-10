@@ -10,8 +10,10 @@
 #include <MFRC522.h>
 extern String password;
 extern char* valueToWrite;
-extern char* DEFAULT_SSID;
-extern char* DEFAULT_PASSWORD;
+extern const int MAX_SSID_LENGTH;
+extern const int MAX_PASS_LENGTH;
+extern char current_ssid[];
+extern char current_password[];
 
 // -- main --
 extern void unlockSequence();
@@ -36,14 +38,15 @@ void servo_lock(int LockVariable);
 extern LiquidCrystal_I2C lcd;
 void LCD_init();
 void lcd_show_message(const char* message);
-void lcd_FirstCol(const char* message);
-void lcd_SecondCol(const char* message);
+void lcd_clearRow(int row);
+void lcd_showRow(int row, const char* message);
 void lcd_savemode();
 
 // --- Wi-Fi Setup ---
 extern WiFiServer server;
 void wifi_setup();
 void ClientOn();
+void wifi_end();
 
 // --- NFC Setup ---
 extern char* valueToWrite;

@@ -315,3 +315,9 @@ void ClientOn() {
     Serial.println("Client disconnected");
   }
 }
+
+void wifi_end(){
+  WiFi.end();
+  server.end();
+
+}

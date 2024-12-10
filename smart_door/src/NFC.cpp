@@ -84,13 +84,13 @@ String readDataFromBlock(byte block) {
 bool compare_password() {
   // Prepare key - default key is FFFFFFFFFFFFh
   MFRC522::MIFARE_Key key;
+  bool truecard;
   for (byte i = 0; i < 6; i++) key.keyByte[i] = 0xFF;
   //-------------------------------------------
   // Check if a new card is present on the sensor/reader
   if (!mfrc522.PICC_IsNewCardPresent()) {
     return false;
   }
-  Serial.println("Compare");
 
   // Select the card
   if (!mfrc522.PICC_ReadCardSerial()) {
@@ -107,18 +107,17 @@ bool compare_password() {
   //-------------------------------------------
   // Compare the read value with the expected value
   if (readValue == valueToWrite) {
-    return true;
+    truecard =  true;
   } else {
-    return false;
+    truecard = false;
   }
 
   //-------------------------------------------
-  Serial.println(F("\n**End Reading and Writing**\n"));
-
-  delay(1000); // Adjust this delay as needed
 
   mfrc522.PICC_HaltA();
   mfrc522.PCD_StopCrypto1();
+
+  return truecard;
 }
 
 bool dect_card() {
