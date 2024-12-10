@@ -1,7 +1,5 @@
 # Smart_Lock
 
-
-# Smart Lock System
 ### Overview
 This project is a smart door system that uses NFC authentication or a WiFi-based web interface to unlock the door. The web interface also allows users to securely change the WiFi name and password.
 
