@@ -3,7 +3,7 @@
 
 Smart Lock System
 Overview
-The Smart Lock System is an Arduino-based project designed to manage a lock using NFC, a password authentication system, and web server functionality. The system is equipped with a servo motor to control the lock, an LCD to show status updates, RGB LEDs to signal different states, and WiFi for remote control. The system operates in three primary states: Power Save, Activity, and Web Server, each with its own behavior and purpose for user interaction and security.
+This project is a smart door system that uses NFC authentication or a WiFi-based web interface to unlock the door. The web interface also allows users to securely change the WiFi name and password.
 
 Features
 Power Save Mode
@@ -83,6 +83,37 @@ Enhance the web interface with more control options and monitoring features.
 
 License
 This project is open-source and licensed under the MIT License. Feel free to use, modify, and distribute the code as needed.
+# Code Structure
+The project is organized as follows:
+|-- .vscode
+|   |-- c_cpp_properties.json      --> C/C++ IntelliSense configuration
+|   |-- launch.json                --> Debugging configuration
+|   |-- settings.json              --> General VS Code settings
+|
+|-- smart_door
+|   |-- include                    --> Header files for modular design
+|   |-- lib                        --> Third-party libraries (if any)
+|   |-- src                        --> Source code
+|   |   |-- LCD.cpp                --> Code for LCD display control
+|   |   |-- NFC.cpp                --> Handles NFC authentication
+|   |   |-- RGB.cpp                --> RGB LED status management
+|   |   |-- SSensor.cpp            --> Sound sensor functionality
+|   |   |-- main.cpp               --> Program entry point
+|   |   |-- motor.cpp              --> Motor operations for locking/unlocking
+|   |   |-- wifi.cpp               --> WiFi functionality and web server
+|   |-- test                       --> Unit tests for individual components
+|       |-- LCD_testcase.cpp       --> Tests for the LCD module
+|       |-- RGB_testcase.cpp       --> Tests for the RGB module
+|       |-- SSensor_testcase.cpp   --> Tests for the sound sensor
+|       |-- motor_testcase.cpp     --> Tests for motor operations
+|       |-- wifi_testcase.cpp      --> Tests for WiFi functionality
+|
+|-- smartdoorweb
+|   |-- public                     --> Static files for the web interface
+|   |-- src                        --> Web application source files
+|
+|-- .gitignore                     --> Git ignore file
+|-- platformio.ini                 --> PlatformIO configuration
 
 # Project Test Suite
 
