@@ -2,10 +2,10 @@
 
 
 # Smart Lock System
-# Overview
+### Overview
 This project is a smart door system that uses NFC authentication or a WiFi-based web interface to unlock the door. The web interface also allows users to securely change the WiFi name and password.
 
-# Features
+### Features
 Power Save Mode
 The system enters a low-power state, where WiFi and other resources are disabled. The system detects sound or user input (via NFC or password) to transition to the next active state.
 
